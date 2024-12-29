@@ -11,7 +11,11 @@ const webhookMiddleware = express.raw({ type: 'application/json' });
 
 // Regular middleware for other routes
 app.use(express.json());
-app.use(cors());
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 
 // Create a payment session
 app.post('/api/create-checkout-session', async (req, res) => {
@@ -36,7 +40,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
-            success_url: `http://localhost:3000/success`,
+            success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `http://localhost:3000/cancel`,
             metadata: {
                 order_id: 1, // You can add custom metadata
@@ -51,10 +55,21 @@ app.post('/api/create-checkout-session', async (req, res) => {
 });
 
 // Retrieve session details
+// app.get('/api/checkout-session/:sessionId', async (req, res) => {
+//     try {
+//         const { sessionId } = req.params;
+//         const session = await stripe.checkout.sessions.retrieve(sessionId);
+//         res.json(session);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
 app.get('/api/checkout-session/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        const session = await stripe.checkout.sessions.retrieve(sessionId, {
+            expand: ['payment_intent', 'customer_details']
+        });
         res.json(session);
     } catch (error) {
         res.status(500).json({ error: error.message });
