@@ -54,16 +54,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
 });
 
-// Retrieve session details
-// app.get('/api/checkout-session/:sessionId', async (req, res) => {
-//     try {
-//         const { sessionId } = req.params;
-//         const session = await stripe.checkout.sessions.retrieve(sessionId);
-//         res.json(session);
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// });
+
 app.get('/api/checkout-session/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
